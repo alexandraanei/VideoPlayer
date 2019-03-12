@@ -1,0 +1,11 @@
+.button {
+  outline: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 5px 15px;
+  -webkit-transition: all .15s ease-out;
+  transition: all .15s ease-out;
+  background: rgba(251, 210, 210, 0.86);
+  margin: 0px 20px;
+}

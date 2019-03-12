@@ -4,9 +4,9 @@ import './css/time.css';
 function Timer (props) {
   return (
     <span className="time">
-      <span>{props.time}</span>
+      <span>{props.currentTime}</span>
       <span> / </span>
-      <span>{props.length}</span>
+      <span>{props.videoDuration}</span>
     </span>
   )
 }

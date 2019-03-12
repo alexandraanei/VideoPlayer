@@ -9,73 +9,44 @@ class Player extends React.Component {
   state = {
     paused: true,
     muted: false,
-    length: null,
-    formattedLength: null,
+    videoDuration: null,
     currentTime: null,
-    formattedTime: null,
-    volume: 0.5,
-    playSVG: constants.playSVG,
-    muteSVG: constants.volumeSVG
+    volume: 0.5
   };
+
   vidRef = React.createRef();
   divVidRef = React.createRef();
-  timeTrackRef = React.createRef();
-  volumeTrackRef = React.createRef();
 
   play = () => {
-    this.duration();
-    const v = this.vidRef.current;
-
     if (this.state.paused === true) {
-      v.play();
+      this.vidRef.current.play();
       this.setState({
-        paused: false,
-        playSVG: constants.pauseSVG});
+        paused: false
+        });
     }
     else {
-      v.pause();
+      this.vidRef.current.pause();
       this.setState({
-        paused: true,
-        playSVG: constants.playSVG});
+        paused: true
+        });
     }
   }
 
-  currentTime() {
+  currentTime = () => {
     let cur = this.vidRef.current.currentTime;
     cur = cur.toFixed();
-    let formattedTime = constants.toHHMMSS(cur);
-
-    this.setState({
-      currentTime: cur,
-      formattedTime: formattedTime
-    });
-
-    if (parseInt(this.state.currentTime) === parseInt(this.state.length)) {
-      this.setState({
-        paused: true,
-        playSVG: constants.playSVG});
-    }
-
     return cur;
   }
 
-  duration() {
+  duration = () => {
     let dur = this.vidRef.current.duration;
     dur = dur.toFixed();
-    let formattedLength = constants.toHHMMSS(dur);
-
-    this.setState({
-      length: dur,
-      formattedLength: formattedLength
-    });
-
     return dur;
   }
 
   handleTimeTrack = (event) => {
     const time_range = event.target
     this.vidRef.current.currentTime = time_range.value;
-
     this.setState({
       currentTime: time_range.value
     });
@@ -88,8 +59,7 @@ class Player extends React.Component {
       this.vidRef.current.muted = true;
       this.setState({
         muted: true,
-        volume: 0,
-        muteSVG: constants.muteSVG
+        volume: 0
       });
     }
     else {
@@ -97,8 +67,7 @@ class Player extends React.Component {
       this.vidRef.current.muted = false;
       this.setState({
         muted: false,
-        volume: volume_range.value,
-        muteSVG: constants.volumeSVG
+        volume: volume_range.value
       });
     }
   }
@@ -111,14 +80,13 @@ class Player extends React.Component {
       document.exitFullscreen();
   }
 
-  mute = () => {
+  handleMuteButton = () => {
     if (this.state.muted === true) {
       this.vidRef.current.muted = false;
       this.vidRef.current.volume = 0.5;
       this.setState({
         volume: 0.5,
-        muted: false,
-        muteSVG: constants.volumeSVG
+        muted: false
       });
     }
     else {
@@ -126,60 +94,70 @@ class Player extends React.Component {
       this.vidRef.current.volume = 0;
       this.setState({
         volume: 0,
-        muted: true,
-        muteSVG: constants.muteSVG
+        muted: true
       });
     }
   }
 
   componentDidMount() {
-    setInterval(() => this.setState({ currentTime: this.currentTime() }), 10);
-    setInterval(() => this.setState({ length: this.duration() }), 10);
+    this.vidRef.current.onloadedmetadata = (event) => {
+      this.setState({
+        currentTime: this.currentTime(),
+        videoDuration: this.duration()
+      })
+    }
+
+    this.vidRef.current.ontimeupdate = (event) => {
+      this.setState({ currentTime: this.currentTime() })
+    };
+
+    this.vidRef.current.onended = (event) => {
+      this.setState({
+        paused: true
+      });
+    };
   }
 
   render() {
     return (
       <div ref={this.divVidRef} className="videoPlayer">
 
-        <video ref={this.vidRef} onClick={() => this.play()} width="100%" height="auto">
+        <video ref={this.vidRef} onClick={this.play} width="100%" height="auto">
           <source src={this.props.src} type="video/mp4" />
         </video>
 
         <div className="controls">
 
           <Button
-            onClick={() => this.play()}
+            onClick={this.play}
             pause={this.state.paused}
-            svg={this.state.playSVG}
+            svg={this.state.paused ? constants.playSVG : constants.pauseSVG}
           />
 
           <Timer
-            time={this.state.formattedTime}
-            length={this.state.formattedLength}
+            currentTime={constants.toHHMMSS(this.state.currentTime)}
+            videoDuration={constants.toHHMMSS(this.state.videoDuration)}
           />
 
           <Track
-            class={"timeTrack"}
-            ref={this.timeTrackRef}
             onChange={(e) => this.handleTimeTrack(e)}
             value={this.state.currentTime}
-            max={this.state.length}
+            max={this.state.videoDuration}
           />
 
           <Button
-            onClick={() => this.mute()}
-            svg={this.state.muteSVG}
+            onClick={this.handleMuteButton}
+            svg={this.state.muted ? constants.muteSVG : constants.volumeSVG}
           />
 
           <Track
             class={"volumeTrack"}
-            ref={this.volumeTrackRef}
             onChange={(e) => this.handleVolumeTrack(e)}
             value={this.state.volume}
           />
 
           <Button
-            onClick={() => this.toggleFullScreen()}
+            onClick={this.toggleFullScreen}
             svg={constants.fullscreenSVG}
           />
 

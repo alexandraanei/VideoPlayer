@@ -9,8 +9,8 @@ class Player extends React.Component {
   state = {
     paused: true,
     muted: false,
-    videoDuration: null,
-    currentTime: null,
+    videoDuration: 0,
+    currentTime: 0,
     volume: 0.5
   };
 
@@ -22,13 +22,13 @@ class Player extends React.Component {
       this.vidRef.current.play();
       this.setState({
         paused: false
-        });
+      });
     }
     else {
       this.vidRef.current.pause();
       this.setState({
         paused: true
-        });
+      });
     }
   }
 
@@ -45,7 +45,7 @@ class Player extends React.Component {
   }
 
   handleTimeTrack = (event) => {
-    const time_range = event.target
+    const time_range = event.target;
     this.vidRef.current.currentTime = time_range.value;
     this.setState({
       currentTime: time_range.value
@@ -53,7 +53,7 @@ class Player extends React.Component {
   }
 
   handleVolumeTrack = (event) => {
-    const volume_range = event.target
+    const volume_range = event.target;
     if (volume_range.value < 0.01) {
       this.vidRef.current.volume = 0;
       this.vidRef.current.muted = true;
@@ -104,18 +104,18 @@ class Player extends React.Component {
       this.setState({
         currentTime: this.currentTime(),
         videoDuration: this.duration()
-      })
+      });
     }
 
     this.vidRef.current.ontimeupdate = (event) => {
-      this.setState({ currentTime: this.currentTime() })
-    };
+      this.setState({ currentTime: this.currentTime() });
+    }
 
     this.vidRef.current.onended = (event) => {
       this.setState({
         paused: true
       });
-    };
+    }
   }
 
   render() {
@@ -140,7 +140,7 @@ class Player extends React.Component {
           />
 
           <Track
-            onChange={(e) => this.handleTimeTrack(e)}
+            onChange={this.handleTimeTrack}
             value={this.state.currentTime}
             max={this.state.videoDuration}
           />
@@ -152,7 +152,7 @@ class Player extends React.Component {
 
           <Track
             class={"volumeTrack"}
-            onChange={(e) => this.handleVolumeTrack(e)}
+            onChange={this.handleVolumeTrack}
             value={this.state.volume}
           />
 
